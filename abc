@@ -1,0 +1,79 @@
+import pandas as pd
+import random
+
+# Create a DataFrame with the desired column names (query IDs)
+column_names = ['q1', 'q2', 'q3', 'q4', 'q5', 'q6', 'q7', 'q8', 'q9', 'q10']
+matrix = pd.DataFrame(columns=column_names)
+
+# Generate 10k user ids
+users = ['user{}'.format(i) for i in range(10001 )]
+
+# Add rows to the DataFrame with user IDs and corresponding ratings
+for user in users:
+    ratings = [random.randint(1, 100) if random.random() > 0.2 else None for _ in range(10)]
+    matrix.loc[user] = ratings
+
+# Save the DataFrame as a CSV file
+matrix.to_csv('utility_matrix.csv', index_label='userId')
+from surprise import KNNWithMeans
+from surprise import Reader
+from surprise import Dataset
+
+# Read the CSV file into a Pandas DataFrame
+matrix = pd.read_csv('utility_matrix.csv', index_col='userId')
+df_long = pd.melt(matrix.reset_index(), id_vars=['userId'], var_name='queryId', value_name='rating')
+
+
+
+# Set up the Reader object with the appropriate rating scale
+reader = Reader(rating_scale=(1, 100))
+
+# Convert the Pandas DataFrame into a Surprise dataset
+data = Dataset.load_from_df(df_long, reader)
+
+# Use the KNN algorithm to fill in the missing values
+algo = KNNWithMeans(k=50, sim_options={'name': 'pearson_baseline', 'user_based': False})
+trainset = data.build_full_trainset()
+algo.fit(trainset)
+
+# Predict the missing values in the matrix
+for i in range(matrix.shape[0]):
+    for j in range(matrix.shape[1]):
+        if pd.isnull(matrix.iloc[i, j]):
+            user_id = matrix.index[i]
+            query_id = matrix.columns[j]
+            prediction = algo.predict(user_id, query_id)
+            matrix.iloc[i, j] = prediction.est
+matrix.to_csv('utility_matrix_filled.csv',index_label='userId')
+#Once you have filled in the missing values in the utility matrix, you can use the matrix to find the top-k queries that may be of interest to a user u.
+from surprise import KNNWithMeans
+from surprise import Dataset
+from surprise import accuracy
+k = 2
+
+for user in matrix.index:
+    algo = KNNWithMeans(k=50, sim_options={'name': 'pearson_baseline', 'user_based': False})
+    algo.fit(trainset)
+    predictions = algo.test([(user, i, r) for i, r in enumerate(matrix.loc[user]) if not pd.isnull(r)])
+    predictions.sort(key=lambda x: x.est, reverse=True)
+    top_k_queries = [i for i, r in enumerate(matrix.loc[user]) if not pd.isnull(r)][:k]
+    top_k_queries_df = pd.DataFrame({'queryId': top_k_queries})
+    top_k_queries_df.to_csv('top_k_queries_for_{}.csv'.format(user),index=False)
+
+
+
+suggested_queries = []
+for user in matrix.index:
+    algo = KNNWithMeans(k=50, sim_options={'name': 'pearson_baseline', 'user_based': False})
+    algo.fit(trainset)
+    predictions = algo.test([(user, i, r) for i, r in enumerate(matrix.loc[user]) if not pd.isnull(r)])
+    predictions.sort(key=lambda x: x.est, reverse=True)
+    top_k_queries = [i for i, r in enumerate(matrix.loc[user]) if not pd.isnull(r)][:k]
+    top_k_queries = [matrix.columns[i] for i in top_k_queries]
+    suggested_queries.append({'user_id':user,'queries':top_k_queries})
+
+suggested_queries_df = pd.DataFrame(suggested_queries)
+suggested_queries_df.to_csv("suggested_queries.csv",index=False)
+
+
+
