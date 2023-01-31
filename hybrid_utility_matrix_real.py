@@ -43,3 +43,9 @@ df_hybrid.to_csv('utility_matrix_hybrid.csv', index=False)
 end = time.time()
 
 print("Time taken: ", end - start)
+import pandas as pd
+
+df = pd.read_csv("utility_matrix_hybrid.csv")
+memory_usage = df.memory_usage().sum() / 1024**2
+
+print("Memory usage of the hybrid utility matrix: {:.2f} MB".format(memory_usage))
