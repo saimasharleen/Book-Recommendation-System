@@ -1,23 +1,22 @@
 import pandas as pd
-from faker import Faker
-import random
+import numpy as np
+import collaborative_utility_matrix_real
+import content_utility_matrix_with_real_data
+import hybrid_utility_matrix_real
+import recommended_queries_for_real_dataset
+import utility_of_a_query_real
 
-# create an instance of the faker generator
-fake = Faker()
 
-# create a list to store the generated data
-data = []
+collaborative_utility_matrix_real.my_func()
+content_utility_matrix_with_real_data.my_func()
+hybrid_utility_matrix_real.my_func()
+recommended_queries_for_real_dataset.my_func()
+utility_of_a_query_real.my_func()
 
-# generate data for 80000 users
-for _ in range(80000):
-    user_id = fake.random_int(min=1, max=80000)
-    query_id = fake.random_int(min=1, max=1000)
-    rating = None if random.random() < 0.2 else fake.random_int(min=1, max=100)
-    data.append({'userId': user_id, 'queryId': query_id, 'rating': rating})
+os.system('python collaborative_utility_matrix_real.py')
+os.system('python content_utility_matrix_with_real_data.py')
+os.system('python hybrid_utility_matrix_real.py')
+os.system('python recommended_queries_for_real_dataset.py')
+os.system('python utility_of_a_query_real.py')
 
-# convert the list to a dataframe
-df = pd.DataFrame(data)
-
-# save the dataframe to a csv file
-df.to_csv("fake_data_missing_ratings.csv", index=False)
-
+execfile('main.py')
