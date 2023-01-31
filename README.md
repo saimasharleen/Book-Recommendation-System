@@ -22,7 +22,7 @@ At the center of the problem is a relational table of books, a user set, a query
 #
 
 **Detailed Report**: 
-- [Link]()
+- [Link](https://github.com/saimasharleen/Book-Recommendation-System/blob/main/report.pdf)
 ### Built With
 * [Python][ https://www.python.org/ ][ Python-url]
 * [Google Colab Pro] [https://colab.research.google.com/] [Colab-url]
