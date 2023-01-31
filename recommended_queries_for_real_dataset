@@ -1,0 +1,18 @@
+import pandas as pd
+
+# Read in the utility matrix
+df = pd.read_csv('utility_matrix_hybrid.csv')
+
+# Threshold to consider a query as recommended
+threshold = 70
+
+# Create an empty dataframe to store the recommended queries
+recommendations = pd.DataFrame(columns=['user', 'query'])
+
+# Iterate over each user and find the queries with an estimated rating above the threshold
+for user in df.index:
+    recommended_queries = df.loc[user][df.loc[user] > threshold].index
+    recommendations = recommendations.append(pd.DataFrame({'user': [user]*len(recommended_queries), 'query': recommended_queries}))
+
+# Save the recommended queries to a CSV file
+recommendations.to_csv('recommended_queries.csv', index=False)
