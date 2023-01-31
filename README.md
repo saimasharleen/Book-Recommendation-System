@@ -23,5 +23,6 @@ At the center of the problem is a relational table of books, a user set, a query
 
 **Detailed Report**: 
 - [Link]()
-#
-#
+### Built With
+* [Python][ https://www.python.org/ ][ Python-url]
+* [Google Colab Pro] [https://colab.research.google.com/] [Colab-url]
